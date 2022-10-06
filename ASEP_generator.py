@@ -11,6 +11,8 @@ from statistics import mean
 
 project_folder = os.path.expanduser("~/Dropbox/Unfundedpension/src/")
 int_folder = os.path.expanduser("~/Dropbox/Unfundedpension/src/int/ASPEP/")
+
+#Converts empst files into DataFrames
 def empst_to_df(file_name, year):
     f = open(file_name, "r")
     if int(year) < 2007 or year == None:
@@ -165,7 +167,7 @@ def empst_to_df(file_name, year):
     data = pd.DataFrame(data)
     data.set_index('UniqueIDItem', inplace=True, drop=True)
     return pd.DataFrame(data)
-
+#Converts empid to DataFrames
 def empid_to_df(file_name, year):
     f = open(file_name, "r")
     
@@ -252,7 +254,7 @@ def empid_to_df(file_name, year):
     data.set_index('UniqueID', inplace=True, drop=False)
     return pd.DataFrame(data)
 
-
+#Merges two different DataFrames for each corresponding year created from empst and empid into one DataFrame
 def merge_st_id(empst,empid):
     new_col = ['Name of Government',
                'Census Region Code',
@@ -280,6 +282,8 @@ def merge_st_id(empst,empid):
 
     print(empst)
     return empst
+
+#Reads folder hosting all empid and empst zip files from FBI to convert into DataFrames
 def read_folder(folder_directory):
     st_files = []
     id_files = []
@@ -326,97 +330,10 @@ def read_folder(folder_directory):
         
     append_asep(int_folder)
 
-    
-def stateid_to_df(file_name):
-    f = open(file_name, "r")
-    
-
-    state_code = []
-    unit_type = []
-    county_code = []
-    unit_id = []
-    sup_code = []
-    sub_code = []
-    
-    gov_name = []
-    census_region = []
-    
-    fips_state = []
-    pop = []
-    year_pop = []
-    year = []
-
-    
-
-    unique_id = []
-    id_list = []
-    for line in f:
-        unique_id.append(line[:14].replace(" ", "") + str(line[197:199].replace(" ", "")))
-        id_list.append(line[:14].replace(" ", ""))
-        state_code.append(line[:2].replace(" ", ""))
-    
-        unit_type.append(line[2:3].replace(" ", ""))
-        
-        county_code.append(line[3:6].replace(" ", ""))
-    
-        unit_id.append(line[6:9].replace(" ", ""))
-    
-        sup_code.append(line[9:12].replace(" ", ""))
-    
-        sub_code.append(line[12:14].replace(" ", ""))
-    
-        gov_name.append(line[14:78].replace(" ", ""))
-    
-        census_region.append(line[78:79].replace(" ", ""))
-    
-        
-        # county_name.append(line[79:109].replace(" ", ""))
-    
-        fips_state.append(line[109:111].replace(" ", ""))
-        
-        # fips_county.append(line[111:114].replace(" ", ""))
-    
-        pop.append(line[125:134].replace(" ", ""))
-    
-        year_pop.append(line[134:136].replace(" ", ""))
-    
-        # school_level.append(line[136:138].replace(" ", ""))
-    
-        # prob.append(line[145:151].replace(" ", ""))
-                
-        # work.append(line[204:206].replace(" ", ""))
-        
-        year.append(line[197:199].replace(" ", ""))
-        
+ 
 
 
-
-    data = {'UniqueID':unique_id,
-            'State Code': state_code,
-            'Unit Type Code':unit_type,
-            'County Code':county_code,
-            'Unit ID':unit_id,
-            'Supplement code':sup_code,
-            'Sub code':sub_code,
-            'Name of Government':gov_name,
-            'Census Region Code':census_region,
-            # 'County Name':county_name,
-            'FIPS State': fips_state,
-            # 'FIPS County':fips_county,
-            
-            'Population/Enrollment/Function Code':pop,
-            'Year of Population/Enrollment':year_pop
-            # ,
-            # 'School Level Code':school_level,
-            # 'Probability of Selection':prob,
-            # 'Worksheet Code':work
-            }
-    data = pd.DataFrame(data)
-    data.set_index('UniqueID', inplace=True, drop=False)
-    return pd.DataFrame(data)
-
-
-
+#Combines all years of ASEP files into one large master file
 def append_asep(folder_directory):
     l = []
     for i in os.listdir(folder_directory):
@@ -434,6 +351,7 @@ def append_asep(folder_directory):
             print(master)
     master.to_csv(folder_directory + '/' + 'Master' +'ASEP.csv')
         
+#Reads all the empst and empid files in a folder to create DataFrames
 def read_folder_state(folder_directory): 
     
     st_files = []
@@ -489,6 +407,8 @@ def read_folder_state(folder_directory):
     df.to_csv(folder_directory + '/' + 'Master' +'ASEP.csv')
     return df
 
+#Compares imputed values to values that are known to be not imputed to understand how accurate the imputed data is 
+#An attempt at imputing totals that was done before Paul gave the Census Bureau's imputation
 def compare_employees(file_directory):
     master = pd.read_csv(file_directory, index_col = 0, low_memory = False)
     
@@ -626,7 +546,9 @@ def compare_employees(file_directory):
     print('filler in total', total_filler)
     print('zed',zed)
     print('noimputed_yestotal', noimputed_yestotal)
-                
+    
+#Compares imputed values to values that are known to be not imputed to understand how accurate the imputed data is 
+#An attempt at imputing totals that was done before Paul gave the Census Bureau's imputation
 def compare(file_directory):
     master = pd.read_csv(file_directory, index_col = 0, low_memory = False)
     
@@ -774,7 +696,7 @@ def compare(file_directory):
     for x in no_imputed:
         print(x, len(no_imputed[x]))
 
-#Data from Paul 
+#Data from Paul is turned into a usable format that matches previous data
 def format_imputation(folder_directory):
     for i in os.listdir(folder_directory):
         print(i)
@@ -802,6 +724,7 @@ if __name__ == '__main__':
     #Data given from Paul with imputed data not publically available
     format_imputation(project_folder + '/ASEP/new_imputed/')
     
+    #Test accuracy of imputation prior to Census Bureau's own imputation
    ##### compare(project_folder+ '/ASEP_save/Restructured.csv')
     
     #compare_employees(project_folder+ '/ASEP_save/Restructured.csv')
