@@ -8,6 +8,7 @@ import pandas as pd
 import os
 dropbox = os.path.expanduser("~/Dropbox/Unfundedpension/src/int/")
 
+#Converts ASEP DataFrames created from ASEP_generator.py to one that matches the formats of the CoG project DataFrames
 def restructure_employee(master):
     code_dict = {'000':'Total - All Government Employment Functions',
                 '023':'Financial Adminstration',
@@ -112,6 +113,8 @@ def restructure_employee(master):
     df = pd.concat(row_list)
     print(df)
     df.to_csv(dropbox + '/ASPEP/Restructured.csv')
+    
+ #Merges CoG Government Finance data to ASPEP DataFrame
 def merge_employee_finances(employee,finance):
     columns = employee.columns.values.tolist()
     columns.remove('Year4')
@@ -134,6 +137,7 @@ def check_sup_sub_code(master):
         #     print(index[9:14])
 if __name__ == '__main__':
     df1 = pd.read_csv('C:/Users/ligna/Documents/Econproj/ASEP/Restructured.csv', index_col = 0, low_memory = False)
+    #Name of CoG Government Finance data to merge with
     df2 = pd.read_csv('C:/Users/ligna/Documents/Econproj/master_v4.csv',index_col = 0, low_memory=False)
     df = pd.read_csv(dropbox + '/ASEP/MasterASEP.csv', index_col = 0)
     restructure_employee(df)
